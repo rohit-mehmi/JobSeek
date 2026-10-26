@@ -18,9 +18,7 @@
             --bg-surface: #121216;
             --bg-card: #16161b;
             --border-subtle: #26262e;
-            --border-focus: #e4e4e7;
             --text-main: #f4f4f6;
-            --text-muted: #8e8e99;
         }
 
         body {
@@ -30,11 +28,8 @@
             overflow-x: hidden;
         }
 
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Custom Dark Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0a0a0c; }
         ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
@@ -42,57 +37,51 @@
 
         /* Bubbly Search Bar & Spring Physics */
         .bubble-search-shell {
-            background: rgba(22, 22, 27, 0.88);
+            background: rgba(22, 22, 27, 0.92);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.11);
-            box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .bubble-search-shell:focus-within {
-            border-color: rgba(255, 255, 255, 0.28);
-            box-shadow: 0 26px 60px -12px rgba(0, 0, 0, 0.95), 0 0 25px -5px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-            transform: translateY(-2px) scale(1.005);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 26px 60px -12px rgba(0, 0, 0, 0.95), 0 0 25px -5px rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
         }
 
         .bubble-pill {
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
             user-select: none;
         }
         .bubble-pill:hover {
             transform: translateY(-2px);
             background-color: #27272f;
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.22);
         }
-        .bubble-pill:active {
-            transform: scale(0.92) !important;
-        }
+        .bubble-pill:active { transform: scale(0.92) !important; }
 
         .bubble-btn-primary {
             background: #f4f4f6;
             color: #0a0a0c;
-            transition: all 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .bubble-btn-primary:hover {
             background: #ffffff;
             transform: translateY(-1px) scale(1.04);
             box-shadow: 0 8px 20px -4px rgba(255, 255, 255, 0.28);
         }
-        .bubble-btn-primary:active {
-            transform: scale(0.92) !important;
-        }
+        .bubble-btn-primary:active { transform: scale(0.92) !important; }
 
-        /* Smooth AI Card Reveal */
         @keyframes fadeUpIn {
-            from { opacity: 0; transform: translateY(12px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .ai-card-enter {
-            animation: fadeUpIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation: fadeUpIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
-        /* Select Dropdown Clean Styling */
         select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a1a1aa'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -104,7 +93,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between relative selection:bg-zinc-200 selection:text-zinc-900">
 
-    <!-- Minimal Top Status Header -->
+    <!-- Minimal Top Header -->
     <header class="w-full px-6 py-4 flex items-center justify-between z-20 shrink-0">
         <div class="flex items-center gap-3 cursor-pointer" onclick="resetToHome()">
             <div class="w-8 h-8 rounded-xl bg-zinc-100 text-zinc-950 flex items-center justify-center font-extrabold text-sm shadow-sm">
@@ -129,15 +118,14 @@
         </div>
     </header>
 
-    <!-- AI Output Stream Container (Hidden until first query) -->
+    <!-- AI Output Stream Container -->
     <main id="aiStreamWrapper" class="hidden flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-2 pb-44 overflow-y-auto">
         <div id="aiConversationStream" class="space-y-8"></div>
     </main>
 
-    <!-- Center Hero & Bubbly Search Bar Wrapper -->
+    <!-- Center Hero & Bubbly Search Bar -->
     <div id="searchDockWrapper" class="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 transition-all duration-500 z-30">
         
-        <!-- Hero Title (Hides once AI stream starts) -->
         <div id="heroBranding" class="text-center mb-7 max-w-xl mx-auto transition-all duration-300">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 text-zinc-400 text-xs mb-3">
                 <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
@@ -156,57 +144,51 @@
             <form id="jobSeekForm" onsubmit="executeJobSeek(event)" class="bubble-search-shell rounded-3xl p-2.5 sm:p-3">
                 <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5">
                     
-                    <!-- Left: Main Role / Keyword Input -->
+                    <!-- Main Role / Keyword Input -->
                     <div class="flex-1 flex items-center gap-3 px-3 py-1.5">
-                        <i class="fa-solid fa-sparkles text-zinc-400 text-sm shrink-0"></i>
+                        <i class="fa-solid fa-magnifying-glass text-zinc-400 text-sm shrink-0"></i>
                         <input type="text" id="roleQueryInput" required
-                            placeholder="Ask JobSeek... (e.g. SEO Executive, React Developer, Pharma Sales)"
+                            placeholder="Ask JobSeek... (e.g. SEO Executive, Web Developer, Digital Marketing)"
                             class="w-full bg-transparent text-sm sm:text-base text-white placeholder-zinc-500 focus:outline-none font-medium">
                     </div>
 
-                    <!-- Right Side: Integrated Bubbly Filters -->
+                    <!-- Right-Side Filters -->
                     <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap justify-end border-t lg:border-t-0 lg:border-l border-zinc-800/90 pt-2.5 lg:pt-0 lg:pl-3">
                         
                         <!-- 1. Experience Filter -->
-                        <div class="relative flex items-center">
-                            <select id="expFilter" title="Experience Level"
-                                class="bubble-pill bg-zinc-900/90 border border-zinc-800 text-zinc-200 text-xs font-semibold pl-3 pr-7 py-2 rounded-full focus:outline-none focus:border-zinc-500 cursor-pointer">
-                                <option value="any">All Exp</option>
-                                <option value="fresher">Fresher (0 yr)</option>
-                                <option value="1-3">Experienced (1-3 yrs)</option>
-                                <option value="3-5">Senior (3-5+ yrs)</option>
-                            </select>
-                        </div>
+                        <select id="expFilter" title="Experience Level"
+                            class="bubble-pill bg-zinc-900/90 border border-zinc-800 text-zinc-200 text-xs font-semibold pl-3 pr-7 py-2 rounded-full focus:outline-none focus:border-zinc-500 cursor-pointer">
+                            <option value="any">All Exp</option>
+                            <option value="fresher">Fresher (0 yr)</option>
+                            <option value="1-3" selected>Experienced (1-3 yrs)</option>
+                            <option value="3-5">Senior (3-5+ yrs)</option>
+                        </select>
 
-                        <!-- 2. Location Input Pill -->
+                        <!-- 2. Location Input -->
                         <div class="relative flex items-center bg-zinc-900/90 border border-zinc-800 rounded-full px-3 py-1.5 focus-within:border-zinc-500 transition">
                             <i class="fa-solid fa-location-dot text-zinc-500 text-[11px] mr-1.5"></i>
-                            <input type="text" id="locationFilter" placeholder="City / Remote" value="Mohali, Chandigarh"
-                                class="w-28 sm:w-32 bg-transparent text-xs font-semibold text-zinc-200 placeholder-zinc-500 focus:outline-none">
+                            <input type="text" id="locationFilter" placeholder="City / Remote" value="Mohali"
+                                class="w-24 sm:w-28 bg-transparent text-xs font-semibold text-zinc-200 placeholder-zinc-500 focus:outline-none">
                         </div>
 
-                        <!-- 3. Distance Allowed Filter -->
-                        <div class="relative flex items-center">
-                            <select id="distanceFilter" title="Distance Radius Allowed"
-                                class="bubble-pill bg-zinc-900/90 border border-zinc-800 text-zinc-200 text-xs font-semibold pl-3 pr-7 py-2 rounded-full focus:outline-none focus:border-zinc-500 cursor-pointer">
-                                <option value="exact">Exact City</option>
-                                <option value="15km">+15 km</option>
-                                <option value="25km" selected>+25 km</option>
-                                <option value="50km">+50 km / Tricity</option>
-                                <option value="remote">Remote / WFH</option>
-                            </select>
-                        </div>
+                        <!-- 3. Distance Allowed -->
+                        <select id="distanceFilter" title="Distance Radius Allowed"
+                            class="bubble-pill bg-zinc-900/90 border border-zinc-800 text-zinc-200 text-xs font-semibold pl-3 pr-7 py-2 rounded-full focus:outline-none focus:border-zinc-500 cursor-pointer">
+                            <option value="exact">Exact City</option>
+                            <option value="15km">+15 km</option>
+                            <option value="25km" selected>+25 km</option>
+                            <option value="50km">+50 km / Tricity</option>
+                            <option value="remote">Remote / WFH</option>
+                        </select>
 
-                        <!-- 4. Insider Intel Toggle (Yes / No) -->
-                        <div class="relative flex items-center">
-                            <select id="intelFilter" title="Include Deep Insider & Past Listings Intel"
-                                class="bubble-pill bg-zinc-900/90 border border-zinc-700 text-white text-xs font-bold pl-3 pr-7 py-2 rounded-full focus:outline-none focus:border-white cursor-pointer">
-                                <option value="yes" selected>Intel: YES</option>
-                                <option value="no">Intel: NO</option>
-                            </select>
-                        </div>
+                        <!-- 4. Insider Intel Toggle -->
+                        <select id="intelFilter" title="Include Deep Insider & Past Listings Intel"
+                            class="bubble-pill bg-zinc-900/90 border border-zinc-700 text-white text-xs font-bold pl-3 pr-7 py-2 rounded-full focus:outline-none focus:border-white cursor-pointer">
+                            <option value="yes" selected>Intel: YES</option>
+                            <option value="no">Intel: NO</option>
+                        </select>
 
-                        <!-- Submit Action Button -->
+                        <!-- Submit Button -->
                         <button type="submit" id="seekSubmitBtn"
                             class="bubble-btn-primary font-bold text-xs px-4 py-2.5 rounded-full flex items-center gap-1.5 shrink-0">
                             <span>Seek</span>
@@ -217,22 +199,22 @@
                 </div>
             </form>
 
-            <!-- Quick Preset Prompts (Visible on home state) -->
+            <!-- Quick Preset Prompts -->
             <div id="quickPresetsBar" class="flex items-center justify-center gap-2 flex-wrap mt-4">
-                <button type="button" onclick="fillPreset('SEO Specialist', 'fresher', 'Chandigarh', '25km', 'yes')" class="bubble-pill text-[11px] text-zinc-400 hover:text-zinc-100 bg-zinc-900/70 border border-zinc-800/90 px-3 py-1.5 rounded-full">
-                    SEO Specialist • Fresher • +25km
+                <button type="button" onclick="fillPreset('SEO Executive', '1-3', 'Mohali', '25km', 'yes')" class="bubble-pill text-[11px] text-zinc-400 hover:text-zinc-100 bg-zinc-900/70 border border-zinc-800/90 px-3 py-1.5 rounded-full">
+                    SEO Executive • 1-3 Yrs • Mohali (+25km)
                 </button>
-                <button type="button" onclick="fillPreset('Full Stack Web Developer', '1-3', 'Mohali', '25km', 'yes')" class="bubble-pill text-[11px] text-zinc-400 hover:text-zinc-100 bg-zinc-900/70 border border-zinc-800/90 px-3 py-1.5 rounded-full">
-                    Web Developer • 1-3 Yrs • Intel ON
+                <button type="button" onclick="fillPreset('Web Developer', 'fresher', 'Chandigarh', '25km', 'yes')" class="bubble-pill text-[11px] text-zinc-400 hover:text-zinc-100 bg-zinc-900/70 border border-zinc-800/90 px-3 py-1.5 rounded-full">
+                    Web Developer • Fresher • Chandigarh
                 </button>
-                <button type="button" onclick="fillPreset('Digital Marketing Executive', '1-3', 'Patiala', '50km', 'yes')" class="bubble-pill text-[11px] text-zinc-400 hover:text-zinc-100 bg-zinc-900/70 border border-zinc-800/90 px-3 py-1.5 rounded-full">
-                    Digital Marketing • Patiala • +50km
+                <button type="button" onclick="fillPreset('Digital Marketing', '1-3', 'Zirakpur', '50km', 'yes')" class="bubble-pill text-[11px] text-zinc-400 hover:text-zinc-100 bg-zinc-900/70 border border-zinc-800/90 px-3 py-1.5 rounded-full">
+                    Digital Marketing • Zirakpur (+50km)
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- TRACKED OPENINGS & DEAD-LINK TIMELINE MODAL -->
+    <!-- TRACKED OPENINGS & REMOVAL TIMELINE MODAL -->
     <div id="trackerModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm items-center justify-center p-4">
         <div class="bg-[#121216] border border-zinc-800 rounded-2xl max-w-3xl w-full p-5 shadow-2xl max-h-[82vh] flex flex-col">
             <div class="flex items-center justify-between pb-3 border-b border-zinc-800">
@@ -268,7 +250,7 @@
         });
 
         /* ==========================================
-           UI STATE: DOCK SEARCH BAR TO BOTTOM (AI MODE)
+           UI STATE: DOCK SEARCH BAR TO BOTTOM
            ========================================== */
         function switchToDockedAIMode() {
             if (isDocked) return;
@@ -307,50 +289,41 @@
         }
 
         /* ==========================================
-           NEARBY CITY / DISTANCE EXPANDER
+           CLEAN LOCATION & EXPERIENCE BUILDERS (NO BROKEN NESTING)
            ========================================== */
-        function buildLocationQueryString(baseLocation, distanceMode) {
+        function getExpandedCityTokens(baseLocation, distanceMode) {
             const cleanLoc = baseLocation.trim();
-            if (distanceMode === 'remote') {
-                return `("Remote" OR "Work from home" OR "${cleanLoc}")`;
-            }
-            if (!cleanLoc) return "India";
+            if (distanceMode === 'remote') return 'Remote Work From Home India';
+            if (!cleanLoc) return 'India';
 
             const lower = cleanLoc.toLowerCase();
-            // Smart regional radius expansion for North India / Tricity & general cities
             if (distanceMode === '25km' || distanceMode === '50km') {
                 if (lower.includes('mohali') || lower.includes('chandigarh') || lower.includes('zirakpur') || lower.includes('panchkula')) {
                     return distanceMode === '50km'
-                        ? `("Mohali" OR "Chandigarh" OR "Zirakpur" OR "Panchkula" OR "Kharar" OR "Derabassi" OR "Patiala")`
-                        : `("Mohali" OR "Chandigarh" OR "Zirakpur" OR "Panchkula")`;
+                        ? 'Mohali OR Chandigarh OR Zirakpur OR Panchkula OR Patiala'
+                        : 'Mohali OR Chandigarh OR Zirakpur';
                 }
                 if (lower.includes('patiala')) {
                     return distanceMode === '50km'
-                        ? `("Patiala" OR "Rajpura" OR "Sirhind" OR "Zirakpur" OR "Mohali" OR "Chandigarh")`
-                        : `("Patiala" OR "Rajpura" OR "Nabha")`;
+                        ? 'Patiala OR Rajpura OR Zirakpur OR Mohali OR Chandigarh'
+                        : 'Patiala OR Rajpura';
                 }
                 if (lower.includes('delhi') || lower.includes('noida') || lower.includes('gurgaon') || lower.includes('gurugram')) {
-                    return `("Delhi" OR "Noida" OR "Gurgaon" OR "Gurugram" OR "Faridabad" OR "Ghaziabad")`;
+                    return 'Delhi OR Noida OR Gurgaon';
                 }
             }
-            return `"${cleanLoc}"`;
+            return cleanLoc;
         }
 
-        function buildExperienceKeywords(expMode) {
-            if (expMode === 'fresher') {
-                return `("fresher" OR "0-1 years" OR "0 years" OR "entry level" OR "trainee" OR "intern")`;
-            }
-            if (expMode === '1-3') {
-                return `("1 year" OR "2 years" OR "3 years" OR "1-3 years" OR "1-2 years" OR "experienced")`;
-            }
-            if (expMode === '3-5') {
-                return `("3+ years" OR "4 years" OR "5 years" OR "senior" OR "lead")`;
-            }
-            return "";
+        function getSimpleExpHint(expMode) {
+            if (expMode === 'fresher') return 'fresher OR trainee OR entry level OR 0-1 years';
+            if (expMode === '1-3') return '1-3 years OR 1 year OR 2 years';
+            if (expMode === '3-5') return 'senior OR 3+ years OR 4 years';
+            return '';
         }
 
         /* ==========================================
-           MULTI-BATCH DEEP JOB ENGINE (40-70+ LISTINGS)
+           MULTI-BATCH DEEP JOB ENGINE (CLEAN QUERIES THAT NEVER RETURN 0)
            ========================================== */
         async function executeJobSeek(event) {
             event.preventDefault();
@@ -371,7 +344,6 @@
 
             const stream = document.getElementById('aiConversationStream');
             const sessionBlockId = 'seek-block-' + Date.now();
-
             const expLabel = exp === 'fresher' ? 'Fresher (0 Yr)' : (exp === '1-3' ? 'Experienced (1-3 Yrs)' : (exp === '3-5' ? 'Senior (3-5+ Yrs)' : 'All Experience'));
 
             const blockEl = document.createElement('div');
@@ -384,7 +356,7 @@
                         <div class="text-sm font-bold text-white">${escapeHtml(role)}</div>
                         <div class="flex items-center gap-1.5 flex-wrap mt-1.5 text-[11px] mono text-zinc-400">
                             <span class="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800">${expLabel}</span>
-                            <span class="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800">${escapeHtml(loc || 'Anywhere')} (${dist})</span>
+                            <span class="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800">${escapeHtml(loc || 'India')} (${dist})</span>
                             <span class="px-2 py-0.5 rounded ${intelOn ? 'bg-zinc-100 text-zinc-950 font-bold' : 'bg-zinc-950 border border-zinc-800'}">Intel: ${intelOn ? 'ENABLED' : 'OFF'}</span>
                         </div>
                     </div>
@@ -394,8 +366,8 @@
                 <div id="${sessionBlockId}-status" class="bg-[#121216] border border-zinc-800/90 rounded-2xl p-4 flex items-center gap-3 text-xs text-zinc-300">
                     <i class="fa-solid fa-circle-notch animate-spin text-white text-sm"></i>
                     <div>
-                        <span class="font-bold text-white block">Scanning Job Boards &amp; Company Indexes...</span>
-                        <span class="text-zinc-500 text-[11px]">Querying Indeed, LinkedIn, Naukri, Apna, JobKaro, Foundit, Internshala, Cutshort &amp; ATS portals in parallel batches...</span>
+                        <span class="font-bold text-white block">Scanning Multi-Platform Job Indexes...</span>
+                        <span class="text-zinc-500 text-[11px]">Pulling from Indeed, LinkedIn, Naukri, Apna, JobKaro, Internshala, Foundit, Glassdoor &amp; direct company boards...</span>
                     </div>
                 </div>
 
@@ -406,21 +378,17 @@
             stream.appendChild(blockEl);
             blockEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-            const locQuery = buildLocationQueryString(loc, dist);
-            const expQuery = buildExperienceKeywords(exp);
+            const cityTokens = getExpandedCityTokens(loc, dist);
+            const expHint = getSimpleExpHint(exp);
 
-            // 5 Parallel Deep Batches to bypass the 10-result limit and pull 40 to 70+ listings across every platform
+            // 6 Flat, High-Yield Queries (No nested parenthesis overload!)
             const batchQueries = [
-                // Batch 1: Major Aggregators (Indeed, LinkedIn, Glassdoor)
-                `(site:in.indeed.com/viewjob OR site:indeed.com/viewjob OR site:linkedin.com/jobs/view OR site:glassdoor.co.in/job-listing) "${role}" ${locQuery} ${expQuery}`,
-                // Batch 2: Indian Job Portals (Naukri, Foundit/Monster, Shine, TimesJobs)
-                `(site:naukri.com/job-listings OR site:foundit.in/job OR site:shine.com/jobs OR site:timesjobs.com/job-detail) "${role}" ${locQuery} ${expQuery}`,
-                // Batch 3: Hyperlocal, Fresher & Emerging Platforms (JobKaro, Apna, Internshala, WorkIndia, Freshersworld)
-                `(site:apna.co/job OR site:internshala.com/job OR site:internshala.com/internship OR site:freshersworld.com/jobs OR site:workindia.in OR "jobkaro") "${role}" ${locQuery} ${expQuery}`,
-                // Batch 4: Direct Company Career Pages & Startup ATS (Cutshort, Wellfound, Instahyre, Lever, Greenhouse, ZohoRecruit)
-                `(site:cutshort.io/job OR site:wellfound.com/jobs OR site:instahyre.com OR site:zohorecruit.com OR site:lever.co OR site:greenhouse.io) "${role}" ${locQuery}`,
-                // Batch 5: Broad Fresh Openings Across Any Local Company Website
-                `"${role}" ("hiring" OR "job opening" OR "apply now" OR "walk-in" OR "vacancy") ${locQuery} ${expQuery} -intitle:"courses"`
+                `${role} jobs in ${cityTokens} ${expHint} site:in.indeed.com`,
+                `${role} jobs in ${cityTokens} ${expHint} site:linkedin.com/jobs`,
+                `${role} jobs in ${cityTokens} ${expHint} site:naukri.com`,
+                `${role} jobs in ${cityTokens} ${expHint} site:apna.co OR site:internshala.com OR site:workindia.in OR jobkaro`,
+                `${role} jobs in ${cityTokens} ${expHint} site:foundit.in OR site:glassdoor.co.in OR site:shine.com OR site:freshersworld.com`,
+                `${role} hiring job opening in ${cityTokens} ${expHint} -courses -training`
             ];
 
             try {
@@ -438,11 +406,19 @@
                                 hl: "en",
                                 num: 20
                             })
-                        }).then(r => r.ok ? r.json() : { organic: [] }).catch(() => ({ organic: [] }))
+                        })
+                        .then(async r => {
+                            if (!r.ok) {
+                                const errText = await r.text().catch(() => '');
+                                throw new Error(`HTTP ${r.status}: ${errText}`);
+                            }
+                            return r.json();
+                        })
+                        .catch(err => ({ organic: [], error: err.message }))
                     )
                 );
 
-                // Merge & Deduplicate by Clean URL
+                // Merge & Deduplicate
                 const seenUrls = new Set();
                 const mergedListings = [];
 
@@ -458,15 +434,38 @@
                     });
                 });
 
+                // Automatic Broad Fallback if specific city + experience was too tight
+                if (mergedListings.length === 0) {
+                    const fallbackRes = await fetch("https://google.serper.dev/search", {
+                        method: "POST",
+                        headers: {
+                            "X-API-KEY": SERPER_API_KEY,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            q: `${role} jobs ${loc || 'India'} hiring apply`,
+                            gl: "in",
+                            hl: "en",
+                            num: 30
+                        })
+                    }).then(r => r.json()).catch(() => ({ organic: [] }));
+
+                    (fallbackRes.organic || []).forEach(item => {
+                        if (!item.link) return;
+                        const parsed = parseJobResultItem(item, role, loc, exp);
+                        mergedListings.push(parsed);
+                    });
+                }
+
                 allExtractedJobs = mergedListings;
                 if (mergedListings.length > 0) {
                     document.getElementById('exportCsvBtn').classList.remove('hidden');
                 }
 
-                renderAIJobStream(sessionBlockId, mergedListings, role, loc, expLabel, intelOn);
+                renderAIJobStream(sessionBlockId, mergedListings, role, loc, expLabel, intelOn, responses[0]?.error);
             } catch (err) {
                 document.getElementById(`${sessionBlockId}-status`).innerHTML = `
-                    <span class="text-rose-400">Error fetching job batches. Please verify your connection.</span>
+                    <span class="text-rose-400">Request failed: ${escapeHtml(err.message)}</span>
                 `;
             } finally {
                 btn.disabled = false;
@@ -498,7 +497,6 @@
             else if (lowerUrl.includes('wellfound.')) { platform = "Wellfound"; platformIcon = "fa-solid fa-rocket"; }
             else if (lowerUrl.includes('instahyre.')) { platform = "Instahyre"; platformIcon = "fa-solid fa-bolt"; }
 
-            // Extract Clean Title & Company Name from SEO Titles
             const rawTitle = (item.title || fallbackRole).replace(/\s*\|\s*.*$/, '');
             let jobTitle = rawTitle;
             let companyName = "Hiring Company";
@@ -511,7 +509,7 @@
                 const parts = rawTitle.split(/\s+at\s+/i);
                 jobTitle = parts[0].trim();
                 companyName = parts[1] ? parts[1].trim() : companyName;
-            } else if (rawTitle.includes(' hiring ')) {
+            } else if (rawTitle.toLowerCase().includes(' hiring ')) {
                 const parts = rawTitle.split(/\s+hiring\s+/i);
                 companyName = parts[0].trim();
                 jobTitle = parts[1] ? parts[1].split(/\s+in\s+/i)[0].trim() : rawTitle;
@@ -526,7 +524,7 @@
                 }
             }
 
-            const snippet = item.snippet || "Click to view full job description, key responsibilities, and application instructions.";
+            const snippet = item.snippet || "Click Apply to view full job description, key responsibilities, and application instructions.";
             const dateListed = item.date || extractDateFromSnippet(snippet) || "Active Listing";
             const salaryMatch = snippet.match(/(?:₹|Rs\.?|INR)\s?[\d,]+(?:\s?-\s?(?:₹|Rs\.?|INR)?\s?[\d,]+)?(?:\s?(?:LPA|Lakhs|per month|\/month|p\.a\.))?/i);
             const expMatch = snippet.match(/\b(?:\d+\s?-\s?\d+\s?(?:years|yrs)|fresher|0-\d\s?years|\d+\+?\s?years)\b/i);
@@ -554,19 +552,18 @@
         /* ==========================================
            RENDER AI RESULTS STREAM + COMPANY INTEL
            ========================================== */
-        function renderAIJobStream(sessionBlockId, jobs, role, loc, expLabel, intelOn) {
+        function renderAIJobStream(sessionBlockId, jobs, role, loc, expLabel, intelOn, apiErr) {
             const statusBox = document.getElementById(`${sessionBlockId}-status`);
             const resultsBox = document.getElementById(`${sessionBlockId}-results`);
 
             if (jobs.length === 0) {
                 statusBox.innerHTML = `
-                    <i class="fa-solid fa-circle-exclamation text-zinc-400"></i>
-                    <span>No listings matched that exact combination. Try broadening the distance filter to +50km or switching experience to All Exp.</span>
+                    <i class="fa-solid fa-circle-exclamation text-rose-400"></i>
+                    <span>${apiErr ? `API Error: ${escapeHtml(apiErr)}` : 'No listings found. Try a broader keyword or location.'}</span>
                 `;
                 return;
             }
 
-            // Count platforms
             const platformCounts = {};
             jobs.forEach(j => { platformCounts[j.platform] = (platformCounts[j.platform] || 0) + 1; });
 
@@ -575,7 +572,7 @@
                     <div class="flex items-center gap-2.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                         <span class="font-bold text-white">Extracted ${jobs.length} Live Openings</span>
-                        <span class="text-zinc-500 text-[11px] mono">(${Object.keys(platformCounts).length} platforms indexed)</span>
+                        <span class="text-zinc-500 text-[11px] mono">(${Object.keys(platformCounts).length} sources indexed)</span>
                     </div>
                     <div class="flex items-center gap-1.5 flex-wrap">
                         ${Object.entries(platformCounts).map(([plat, c]) => `
@@ -660,7 +657,7 @@
                         ${escapeHtml(job.snippet)}
                     </div>
 
-                    <!-- Deep Insider Intel Drawer (Past Openings, Removed/Closed Status, HR/Recruiter, Salaries) -->
+                    <!-- Deep Insider Intel Drawer -->
                     <div id="${intelDrawerId}" class="hidden mt-4 pt-4 border-t border-zinc-800 space-y-3"></div>
                 </div>
             `;
@@ -689,25 +686,24 @@
             const companyClean = job.companyName.replace(/pvt|ltd|private|limited|inc/gi, '').trim();
 
             try {
-                // Run 3 Parallel Recon Queries + Live Link Health Check
                 const [historyData, cultureData, hrData, linkStatus] = await Promise.all([
                     // 1. Past & Historical Job Openings from this Company
                     fetch("https://google.serper.dev/search", {
                         method: "POST",
                         headers: { "X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            q: `"${companyClean}" (site:naukri.com OR site:indeed.com OR site:linkedin.com/jobs OR site:internshala.com OR "hiring" OR "vacancy")`,
+                            q: `"${companyClean}" jobs hiring site:naukri.com OR site:indeed.com OR site:linkedin.com/jobs OR site:internshala.com`,
                             gl: "in",
                             num: 6
                         })
                     }).then(r => r.json()).catch(() => ({ organic: [] })),
 
-                    // 2. Insider Salary, Response Time & Reviews (AmbitionBox / Glassdoor / Reddit)
+                    // 2. Insider Salary, Response Time & Reviews (AmbitionBox / Glassdoor)
                     fetch("https://google.serper.dev/search", {
                         method: "POST",
                         headers: { "X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            q: `"${companyClean}" (site:ambitionbox.com OR site:glassdoor.co.in OR "salary" OR "interview" OR "reviews")`,
+                            q: `"${companyClean}" reviews salary interview site:ambitionbox.com OR site:glassdoor.co.in`,
                             gl: "in",
                             num: 4
                         })
@@ -718,13 +714,13 @@
                         method: "POST",
                         headers: { "X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            q: `site:in.linkedin.com/in/ "${companyClean}" ("HR" OR "Recruiter" OR "Talent" OR "Founder" OR "Hiring")`,
+                            q: `"${companyClean}" HR OR Recruiter OR Talent OR Founder site:in.linkedin.com/in/`,
                             gl: "in",
                             num: 4
                         })
                     }).then(r => r.json()).catch(() => ({ organic: [] })),
 
-                    // 4. Check if listing URL is still live or removed/expired
+                    // 4. Check if listing URL is still live or removed
                     checkListingLiveStatus(job.url)
                 ]);
 
@@ -736,13 +732,10 @@
                 drawer.innerHTML = `
                     <div class="bg-[#0e0e12] border border-zinc-800 rounded-xl p-4 space-y-4">
                         
-                        <!-- Top Intel Summary Strip -->
                         <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-zinc-800/80">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
-                                    <i class="fa-solid fa-satellite-dish text-zinc-300"></i> Deep Company Intel: ${escapeHtml(job.companyName)}
-                                </span>
-                            </div>
+                            <span class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-satellite-dish text-zinc-300"></i> Deep Company Intel: ${escapeHtml(job.companyName)}
+                            </span>
                             <span class="text-[11px] mono px-2.5 py-0.5 rounded-full border ${
                                 linkStatus.state === 'ACTIVE'
                                     ? 'bg-emerald-950/50 border-emerald-800 text-emerald-300'
@@ -792,7 +785,7 @@
                                             </a>
                                         `).join('')}
                                     </div>
-                                ` : `<p class="text-zinc-500 text-[11px]">No public AmbitionBox/Glassdoor complaints found—likely a private/local team.</p>`}
+                                ` : `<p class="text-zinc-500 text-[11px]">No public AmbitionBox/Glassdoor records found—likely a private/local firm.</p>`}
                             </div>
 
                             <!-- Column 3: Direct HR / Hiring Decision Makers -->
