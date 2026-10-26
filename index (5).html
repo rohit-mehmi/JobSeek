@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobSeek — AI Job & Company Intelligence</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-matte: #0a0a0c;
+            --bg-surface: #121216;
+            --bg-card: #16161b;
+            --border-subtle: #26262e;
+            --border-focus: #e4e4e7;
+            --text-main: #f4f4f6;
+            --text-muted: #8e8e99;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-matte);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Custom Dark Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0c; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+        /* Bubbly Search Bar & Spring Physics */
+        .bubble-search-shell {
+            background: rgba(22, 22, 27, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.11);
+            box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .bubble-search-shell:focus-within {
+            border-color: rgba(255, 255, 255, 0.28);
+            box-shadow: 0 26px 60px -12px rgba(0, 0, 0, 0.95), 0 0 25px -5px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+            transform: translateY(-2px) scale(1.005);
+        }
+
+        .bubble-pill {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
+        }
+        .bubble-pill:hover {
+            transform: translateY(-2px);
+            background-color: #27272f;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .bubble-pill:active {
+            transform: scale(0.92) !important;
+        }
+
+        .bubble-btn-primary {
+            background: #f4f4f6;
+            color: #0a0a0c;
+            transition: all 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .bubble-btn-primary:hover {
+            background: #ffffff;
+            transform: translateY(-1px) scale(1.04);
+            box-shadow: 0 8px 20px -4px rgba(255, 255, 255, 0.28);
+        }
+        .bubble-btn-primary:active {
+            transform: scale(0.92) !important;
+        }
+
+        /* Smooth AI Card Reveal */
+        @keyframes fadeUpIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ai-card-enter {
+            animation: fadeUpIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* Select Dropdown Clean Styling */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a1a1aa'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.55rem center;
+            background-size: 0.8rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative selection:bg-zinc-200 selection:text-zinc-900">
+
+    <!-- Minimal Top Status Header -->
+    <header class="w-full px-6 py-4 flex items-center justify-between z-20 shrink-0">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="resetToHome()">
+            <div class="w-8 h-8 rounded-xl bg-zinc-100 text-zinc-950 flex items-center justify-center font-extrabold text-sm shadow-sm">
+                JS
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="font-extrabold tracking-tight text-base text-zinc-100">JobSeek</span>
+                <span class="text-[10px] mono uppercase px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400">AI Deep Recon</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+            <button id="exportCsvBtn" onclick="exportJobsCSV()" class="hidden bubble-pill text-xs font-semibold px-3.5 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-download text-[11px]"></i>
+                <span>Export CSV</span>
+            </button>
+            <button onclick="toggleDeadLinkMonitor()" class="bubble-pill text-xs font-semibold px-3.5 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-radar text-[11px] text-zinc-400"></i>
+                <span>Tracked Openings</span>
+                <span id="trackedCountBadge" class="mono text-[10px] bg-zinc-800 text-zinc-200 px-1.5 py-0.2 rounded-full">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- AI Output Stream Container (Hidden until first query) -->
+    <main id="aiStreamWrapper" class="hidden flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-2 pb-44 overflow-y-auto">
+        <div id="aiConversationStream" class="space-y-8"></div>
+    </main>
+
+    <!-- Center Hero & Bubbly Search Bar Wrapper -->
+    <div id="searchDockWrapper" class="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 transition-all duration-500 z-30">
+        
+        <!-- Hero Title (Hides once AI stream starts) -->
+        <div id="heroBranding" class="text-center mb-7 max-w-xl mx-auto transition-all duration-300">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 text-zinc-400 text-xs mb-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                <span>Multi-Platform Job Aggregator &amp; Company Intel Engine</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                What role are we hunting today?
+            </h1>
+            <p class="text-xs sm:text-sm text-zinc-400 mt-2">
+                Extracts live listings across Indeed, LinkedIn, Naukri, Apna, JobKaro, Internshala, Foundit &amp; company career boards—plus past openings &amp; insider intel.
+            </p>
+        </div>
+
+        <!-- BUBBLY CENTER SEARCH BAR WITH RIGHT-SIDE FILTERS -->
+        <div id="bubbleSearchContainer" class="w-full max-w-4xl">
+            <form id="jobSeekForm" onsubmit="executeJobSeek(event)" class="bubble-search-shell rounded-3xl p-2.5 sm:p-3">
+                <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5">
+                    
+                    <!-- Left: Main Role / Keyword Input -->
+                    <div class="flex-1 flex items-center gap-3 px-3 py-1.5">
+                        <i class="fa-solid fa-sparkles text-zinc-400 text-sm shrink-0"></i>
+                        <input type="text" id="roleQueryInput" required
+                            placeholder="Ask JobSeek... (e.g. SEO Executive, React Developer, Pharma Sales)"
+                            class="w-full bg-transparent text-sm sm:text-base text-white placeholder-zinc-500 focus:outline-none font-medium">
+                    </div>
+
+                    <!-- Right Side: Integrated Bubbly Filters -->
+                    <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap justify-end border-t lg:border-t-0 lg:border-l border-zinc-800/90 pt-2.5 lg:pt-0 lg:pl-3">
+                        
+                        <!-- 1. Experience Filter -->
+                        <div class="relative flex items-center">
+                            <select id="expFilter" title="Experience Level"
+                                class="bubble-pill bg-zinc-900/90 border border-zinc-800 text-zinc-200 text-xs font-semibold pl-3 pr-7 py-2 rounded-full focus:outline-none focus:border-zinc-500 cursor-pointer">
+                                <option value="any">All Exp</option>
+                                <option value="fresher">Fresher (0 yr)</option>
+                                <option value="1-3">Experienced (1-3 yrs)</option>
+                                <option value="3-5">Senior (3-5+ yrs)</option>
+                            </select>
+                        </div>
+
+                        <!-- 2. Location Input Pill -->
+                        <div class="relative flex items-center bg-zinc-900/90 border border-zinc-800 rounded-full px-3 py-1.5 focus-within:border-zinc-500 transition">
+                            <i class="fa-solid fa-location-dot text-zinc-500 text-[11px] mr-1.5"></i>
+                            <input type="text" id="locationFilter" placeholder="City / Remote" value="Mohali, Chandigarh"
+                                class="w-28 sm:w-32 bg-transparent text-xs font-semibold text-zinc-200 placeholder-zinc-500 focus:outline-none">
+                        </div>
+
+                        <!-- 3. Distance Allowed Filter -->
+                        <div class="relative flex items-center">
+                            <select id="distanceFilter" title="Distance Radius Allowed"
+                                class="bubble-pill bg-zinc-900/90 border border-zinc-800 text-zinc-200 text-xs font-semibold pl-3 pr-7 py-2 rounded-full focus:outline-none focus:border-zinc-500 cursor-pointer">
+                                <option value="exact">Exact City</option>
+                                <option value="15km">+15 km</option>
+                                <option value="25km" selected>+25 km</option>
+                                <option value="50km">+50 km / Tricity</option>
+                                <option value="remote">Remote / WFH</option>
+                            </select>
+                        </div>
+
+                        <!-- 4. Insider Intel Toggle (Yes / No) -->
+                        <div class="relative flex items-center">
+                            <select id="intelFilter" title="Include Deep Insider & Past Listings Intel"
+                                class="bubble-pill bg-zinc-900/90 border border-zinc-700 text-white text-xs font-bold pl-3 pr-7 py-2 rounded-full focus:outline-none focus:border-white cursor-pointer">
+                                <option value="yes" selected>Intel: YES</option>
+                                <option value="no">Intel: NO</option>
+                            </select>
+                        </div>
+
+                        <!-- Submit Action Button -->
+                        <button type="submit" id="seekSubmitBtn"
+                            class="bubble-btn-primary font-bold text-xs px-4 py-2.5 rounded-full flex items-center gap-1.5 shrink-0">
+                            <span>Seek</span>
+                            <i class="fa-solid fa-arrow-up text-[11px]"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+
+            <!-- Quick Preset Prompts (Visible on home state) -->
+            <div id="quickPresetsBar" class="flex items-center justify-center gap-2 flex-wrap mt-4">
+                <button type="button" onclick="fillPreset('SEO Specialist', 'fresher', 'Chandigarh', '25km', 'yes')" class="bubble-pill text-[11px] text-zinc-400 hover:text-zinc-100 bg-zinc-900/70 border border-zinc-800/90 px-3 py-1.5 rounded-full">
+                    SEO Specialist • Fresher • +25km
+                </button>
+                <button type="button" onclick="fillPreset('Full Stack Web Developer', '1-3', 'Mohali', '25km', 'yes')" class="bubble-pill text-[11px] text-zinc-400 hover:text-zinc-100 bg-zinc-900/70 border border-zinc-800/90 px-3 py-1.5 rounded-full">
+                    Web Developer • 1-3 Yrs • Intel ON
+                </button>
+                <button type="button" onclick="fillPreset('Digital Marketing Executive', '1-3', 'Patiala', '50km', 'yes')" class="bubble-pill text-[11px] text-zinc-400 hover:text-zinc-100 bg-zinc-900/70 border border-zinc-800/90 px-3 py-1.5 rounded-full">
+                    Digital Marketing • Patiala • +50km
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRACKED OPENINGS & DEAD-LINK TIMELINE MODAL -->
+    <div id="trackerModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm items-center justify-center p-4">
+        <div class="bg-[#121216] border border-zinc-800 rounded-2xl max-w-3xl w-full p-5 shadow-2xl max-h-[82vh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-zinc-800">
+                <div>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-timeline text-zinc-300"></i>
+                        <span>Saved Openings &amp; Removal Tracker</span>
+                    </h3>
+                    <p class="text-[11px] text-zinc-400 mt-0.5">Logs when you discovered a job and checks if the employer has removed/closed the listing.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="verifyAllTrackedLinks()" id="recheckBtn" class="bubble-pill text-xs font-semibold px-3 py-1.5 rounded-full bg-zinc-800 text-zinc-200 border border-zinc-700">
+                        <i class="fa-solid fa-rotate mr-1"></i> Check If Removed
+                    </button>
+                    <button onclick="toggleDeadLinkMonitor()" class="text-zinc-400 hover:text-white px-2 py-1 text-sm">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="trackedJobsList" class="flex-1 overflow-y-auto space-y-2.5 my-4 pr-1"></div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        const SERPER_API_KEY = "99c8d57573b8b9c14bc6198a61aaef4fd01d076d";
+        let allExtractedJobs = [];
+        let trackedJobs = JSON.parse(localStorage.getItem('jobseek_tracked_v1') || '[]');
+        let isDocked = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTrackedBadge();
+        });
+
+        /* ==========================================
+           UI STATE: DOCK SEARCH BAR TO BOTTOM (AI MODE)
+           ========================================== */
+        function switchToDockedAIMode() {
+            if (isDocked) return;
+            isDocked = true;
+
+            document.getElementById('heroBranding').classList.add('hidden');
+            document.getElementById('quickPresetsBar').classList.add('hidden');
+            document.getElementById('aiStreamWrapper').classList.remove('hidden');
+
+            const dock = document.getElementById('searchDockWrapper');
+            dock.classList.remove('flex-1', 'justify-center');
+            dock.classList.add('fixed', 'bottom-4', 'left-0', 'right-0', 'pointer-events-none');
+
+            const container = document.getElementById('bubbleSearchContainer');
+            container.classList.add('pointer-events-auto', 'mx-auto');
+        }
+
+        function resetToHome() {
+            isDocked = false;
+            document.getElementById('heroBranding').classList.remove('hidden');
+            document.getElementById('quickPresetsBar').classList.remove('hidden');
+            document.getElementById('aiStreamWrapper').classList.add('hidden');
+
+            const dock = document.getElementById('searchDockWrapper');
+            dock.classList.add('flex-1', 'justify-center');
+            dock.classList.remove('fixed', 'bottom-4', 'left-0', 'right-0', 'pointer-events-none');
+        }
+
+        function fillPreset(role, exp, loc, dist, intel) {
+            document.getElementById('roleQueryInput').value = role;
+            document.getElementById('expFilter').value = exp;
+            document.getElementById('locationFilter').value = loc;
+            document.getElementById('distanceFilter').value = dist;
+            document.getElementById('intelFilter').value = intel;
+            document.getElementById('jobSeekForm').requestSubmit();
+        }
+
+        /* ==========================================
+           NEARBY CITY / DISTANCE EXPANDER
+           ========================================== */
+        function buildLocationQueryString(baseLocation, distanceMode) {
+            const cleanLoc = baseLocation.trim();
+            if (distanceMode === 'remote') {
+                return `("Remote" OR "Work from home" OR "${cleanLoc}")`;
+            }
+            if (!cleanLoc) return "India";
+
+            const lower = cleanLoc.toLowerCase();
+            // Smart regional radius expansion for North India / Tricity & general cities
+            if (distanceMode === '25km' || distanceMode === '50km') {
+                if (lower.includes('mohali') || lower.includes('chandigarh') || lower.includes('zirakpur') || lower.includes('panchkula')) {
+                    return distanceMode === '50km'
+                        ? `("Mohali" OR "Chandigarh" OR "Zirakpur" OR "Panchkula" OR "Kharar" OR "Derabassi" OR "Patiala")`
+                        : `("Mohali" OR "Chandigarh" OR "Zirakpur" OR "Panchkula")`;
+                }
+                if (lower.includes('patiala')) {
+                    return distanceMode === '50km'
+                        ? `("Patiala" OR "Rajpura" OR "Sirhind" OR "Zirakpur" OR "Mohali" OR "Chandigarh")`
+                        : `("Patiala" OR "Rajpura" OR "Nabha")`;
+                }
+                if (lower.includes('delhi') || lower.includes('noida') || lower.includes('gurgaon') || lower.includes('gurugram')) {
+                    return `("Delhi" OR "Noida" OR "Gurgaon" OR "Gurugram" OR "Faridabad" OR "Ghaziabad")`;
+                }
+            }
+            return `"${cleanLoc}"`;
+        }
+
+        function buildExperienceKeywords(expMode) {
+            if (expMode === 'fresher') {
+                return `("fresher" OR "0-1 years" OR "0 years" OR "entry level" OR "trainee" OR "intern")`;
+            }
+            if (expMode === '1-3') {
+                return `("1 year" OR "2 years" OR "3 years" OR "1-3 years" OR "1-2 years" OR "experienced")`;
+            }
+            if (expMode === '3-5') {
+                return `("3+ years" OR "4 years" OR "5 years" OR "senior" OR "lead")`;
+            }
+            return "";
+        }
+
+        /* ==========================================
+           MULTI-BATCH DEEP JOB ENGINE (40-70+ LISTINGS)
+           ========================================== */
+        async function executeJobSeek(event) {
+            event.preventDefault();
+
+            const role = document.getElementById('roleQueryInput').value.trim();
+            const exp = document.getElementById('expFilter').value;
+            const loc = document.getElementById('locationFilter').value.trim();
+            const dist = document.getElementById('distanceFilter').value;
+            const intelOn = document.getElementById('intelFilter').value === 'yes';
+
+            if (!role) return;
+
+            switchToDockedAIMode();
+
+            const btn = document.getElementById('seekSubmitBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin"></i>`;
+
+            const stream = document.getElementById('aiConversationStream');
+            const sessionBlockId = 'seek-block-' + Date.now();
+
+            const expLabel = exp === 'fresher' ? 'Fresher (0 Yr)' : (exp === '1-3' ? 'Experienced (1-3 Yrs)' : (exp === '3-5' ? 'Senior (3-5+ Yrs)' : 'All Experience'));
+
+            const blockEl = document.createElement('div');
+            blockEl.id = sessionBlockId;
+            blockEl.className = "space-y-4 ai-card-enter";
+            blockEl.innerHTML = `
+                <!-- User Prompt Bubble -->
+                <div class="flex justify-end">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 max-w-2xl">
+                        <div class="text-sm font-bold text-white">${escapeHtml(role)}</div>
+                        <div class="flex items-center gap-1.5 flex-wrap mt-1.5 text-[11px] mono text-zinc-400">
+                            <span class="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800">${expLabel}</span>
+                            <span class="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800">${escapeHtml(loc || 'Anywhere')} (${dist})</span>
+                            <span class="px-2 py-0.5 rounded ${intelOn ? 'bg-zinc-100 text-zinc-950 font-bold' : 'bg-zinc-950 border border-zinc-800'}">Intel: ${intelOn ? 'ENABLED' : 'OFF'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Streaming Status -->
+                <div id="${sessionBlockId}-status" class="bg-[#121216] border border-zinc-800/90 rounded-2xl p-4 flex items-center gap-3 text-xs text-zinc-300">
+                    <i class="fa-solid fa-circle-notch animate-spin text-white text-sm"></i>
+                    <div>
+                        <span class="font-bold text-white block">Scanning Job Boards &amp; Company Indexes...</span>
+                        <span class="text-zinc-500 text-[11px]">Querying Indeed, LinkedIn, Naukri, Apna, JobKaro, Foundit, Internshala, Cutshort &amp; ATS portals in parallel batches...</span>
+                    </div>
+                </div>
+
+                <!-- Results Output Slot -->
+                <div id="${sessionBlockId}-results"></div>
+            `;
+
+            stream.appendChild(blockEl);
+            blockEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            const locQuery = buildLocationQueryString(loc, dist);
+            const expQuery = buildExperienceKeywords(exp);
+
+            // 5 Parallel Deep Batches to bypass the 10-result limit and pull 40 to 70+ listings across every platform
+            const batchQueries = [
+                // Batch 1: Major Aggregators (Indeed, LinkedIn, Glassdoor)
+                `(site:in.indeed.com/viewjob OR site:indeed.com/viewjob OR site:linkedin.com/jobs/view OR site:glassdoor.co.in/job-listing) "${role}" ${locQuery} ${expQuery}`,
+                // Batch 2: Indian Job Portals (Naukri, Foundit/Monster, Shine, TimesJobs)
+                `(site:naukri.com/job-listings OR site:foundit.in/job OR site:shine.com/jobs OR site:timesjobs.com/job-detail) "${role}" ${locQuery} ${expQuery}`,
+                // Batch 3: Hyperlocal, Fresher & Emerging Platforms (JobKaro, Apna, Internshala, WorkIndia, Freshersworld)
+                `(site:apna.co/job OR site:internshala.com/job OR site:internshala.com/internship OR site:freshersworld.com/jobs OR site:workindia.in OR "jobkaro") "${role}" ${locQuery} ${expQuery}`,
+                // Batch 4: Direct Company Career Pages & Startup ATS (Cutshort, Wellfound, Instahyre, Lever, Greenhouse, ZohoRecruit)
+                `(site:cutshort.io/job OR site:wellfound.com/jobs OR site:instahyre.com OR site:zohorecruit.com OR site:lever.co OR site:greenhouse.io) "${role}" ${locQuery}`,
+                // Batch 5: Broad Fresh Openings Across Any Local Company Website
+                `"${role}" ("hiring" OR "job opening" OR "apply now" OR "walk-in" OR "vacancy") ${locQuery} ${expQuery} -intitle:"courses"`
+            ];
+
+            try {
+                const responses = await Promise.all(
+                    batchQueries.map(q =>
+                        fetch("https://google.serper.dev/search", {
+                            method: "POST",
+                            headers: {
+                                "X-API-KEY": SERPER_API_KEY,
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                q: q,
+                                gl: "in",
+                                hl: "en",
+                                num: 20
+                            })
+                        }).then(r => r.ok ? r.json() : { organic: [] }).catch(() => ({ organic: [] }))
+                    )
+                );
+
+                // Merge & Deduplicate by Clean URL
+                const seenUrls = new Set();
+                const mergedListings = [];
+
+                responses.forEach(resData => {
+                    (resData.organic || []).forEach(item => {
+                        if (!item.link) return;
+                        const cleanLink = item.link.split('?')[0].replace(/\/$/, '');
+                        if (seenUrls.has(cleanLink)) return;
+                        seenUrls.add(cleanLink);
+
+                        const parsed = parseJobResultItem(item, role, loc, exp);
+                        mergedListings.push(parsed);
+                    });
+                });
+
+                allExtractedJobs = mergedListings;
+                if (mergedListings.length > 0) {
+                    document.getElementById('exportCsvBtn').classList.remove('hidden');
+                }
+
+                renderAIJobStream(sessionBlockId, mergedListings, role, loc, expLabel, intelOn);
+            } catch (err) {
+                document.getElementById(`${sessionBlockId}-status`).innerHTML = `
+                    <span class="text-rose-400">Error fetching job batches. Please verify your connection.</span>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>Seek</span><i class="fa-solid fa-arrow-up text-[11px]"></i>`;
+            }
+        }
+
+        /* ==========================================
+           SMART PARSER: PLATFORM, COMPANY, DATE & REQUIREMENTS
+           ========================================== */
+        function parseJobResultItem(item, fallbackRole, fallbackLoc, expFilter) {
+            const url = item.link || '';
+            const lowerUrl = url.toLowerCase();
+            let platform = "Company Career";
+            let platformIcon = "fa-solid fa-building";
+
+            if (lowerUrl.includes('indeed.')) { platform = "Indeed"; platformIcon = "fa-solid fa-briefcase"; }
+            else if (lowerUrl.includes('linkedin.')) { platform = "LinkedIn"; platformIcon = "fa-brands fa-linkedin"; }
+            else if (lowerUrl.includes('naukri.')) { platform = "Naukri"; platformIcon = "fa-solid fa-user-tie"; }
+            else if (lowerUrl.includes('apna.co')) { platform = "Apna"; platformIcon = "fa-solid fa-bolt"; }
+            else if (lowerUrl.includes('jobkaro')) { platform = "JobKaro"; platformIcon = "fa-solid fa-compass"; }
+            else if (lowerUrl.includes('internshala.')) { platform = "Internshala"; platformIcon = "fa-solid fa-graduation-cap"; }
+            else if (lowerUrl.includes('foundit.') || lowerUrl.includes('monster')) { platform = "Foundit"; platformIcon = "fa-solid fa-globe"; }
+            else if (lowerUrl.includes('glassdoor.')) { platform = "Glassdoor"; platformIcon = "fa-solid fa-door-open"; }
+            else if (lowerUrl.includes('shine.com')) { platform = "Shine"; platformIcon = "fa-solid fa-star"; }
+            else if (lowerUrl.includes('freshersworld')) { platform = "Freshersworld"; platformIcon = "fa-solid fa-seedling"; }
+            else if (lowerUrl.includes('workindia')) { platform = "WorkIndia"; platformIcon = "fa-solid fa-phone-volume"; }
+            else if (lowerUrl.includes('cutshort.io')) { platform = "Cutshort"; platformIcon = "fa-solid fa-code"; }
+            else if (lowerUrl.includes('wellfound.')) { platform = "Wellfound"; platformIcon = "fa-solid fa-rocket"; }
+            else if (lowerUrl.includes('instahyre.')) { platform = "Instahyre"; platformIcon = "fa-solid fa-bolt"; }
+
+            // Extract Clean Title & Company Name from SEO Titles
+            const rawTitle = (item.title || fallbackRole).replace(/\s*\|\s*.*$/, '');
+            let jobTitle = rawTitle;
+            let companyName = "Hiring Company";
+
+            if (rawTitle.includes(' - ')) {
+                const parts = rawTitle.split(' - ');
+                jobTitle = parts[0].trim();
+                companyName = parts[1] ? parts[1].replace(/Indeed\.com|Naukri\.com|LinkedIn|Jobs|Hiring/gi, '').trim() : companyName;
+            } else if (rawTitle.toLowerCase().includes(' at ')) {
+                const parts = rawTitle.split(/\s+at\s+/i);
+                jobTitle = parts[0].trim();
+                companyName = parts[1] ? parts[1].trim() : companyName;
+            } else if (rawTitle.includes(' hiring ')) {
+                const parts = rawTitle.split(/\s+hiring\s+/i);
+                companyName = parts[0].trim();
+                jobTitle = parts[1] ? parts[1].split(/\s+in\s+/i)[0].trim() : rawTitle;
+            }
+
+            if (!companyName || companyName.length < 2 || companyName.toLowerCase().includes('india')) {
+                try {
+                    const host = new URL(url).hostname.replace('www.', '').split('.')[0];
+                    companyName = host.charAt(0).toUpperCase() + host.slice(1);
+                } catch (e) {
+                    companyName = "Direct Employer";
+                }
+            }
+
+            const snippet = item.snippet || "Click to view full job description, key responsibilities, and application instructions.";
+            const dateListed = item.date || extractDateFromSnippet(snippet) || "Active Listing";
+            const salaryMatch = snippet.match(/(?:₹|Rs\.?|INR)\s?[\d,]+(?:\s?-\s?(?:₹|Rs\.?|INR)?\s?[\d,]+)?(?:\s?(?:LPA|Lakhs|per month|\/month|p\.a\.))?/i);
+            const expMatch = snippet.match(/\b(?:\d+\s?-\s?\d+\s?(?:years|yrs)|fresher|0-\d\s?years|\d+\+?\s?years)\b/i);
+
+            return {
+                id: 'job_' + Math.random().toString(36).substring(2, 10),
+                jobTitle,
+                companyName,
+                platform,
+                platformIcon,
+                url,
+                snippet,
+                dateListed,
+                salary: salaryMatch ? salaryMatch[0] : "Not Disclosed",
+                experienceReq: expMatch ? expMatch[0] : (expFilter === 'fresher' ? 'Fresher / Entry' : '1-3+ Years'),
+                location: fallbackLoc || "India"
+            };
+        }
+
+        function extractDateFromSnippet(text) {
+            const m = text.match(/\b(\d+\s+(?:hours?|days?|weeks?|months?)\s+ago|just posted|today|yesterday)\b/i);
+            return m ? m[0] : null;
+        }
+
+        /* ==========================================
+           RENDER AI RESULTS STREAM + COMPANY INTEL
+           ========================================== */
+        function renderAIJobStream(sessionBlockId, jobs, role, loc, expLabel, intelOn) {
+            const statusBox = document.getElementById(`${sessionBlockId}-status`);
+            const resultsBox = document.getElementById(`${sessionBlockId}-results`);
+
+            if (jobs.length === 0) {
+                statusBox.innerHTML = `
+                    <i class="fa-solid fa-circle-exclamation text-zinc-400"></i>
+                    <span>No listings matched that exact combination. Try broadening the distance filter to +50km or switching experience to All Exp.</span>
+                `;
+                return;
+            }
+
+            // Count platforms
+            const platformCounts = {};
+            jobs.forEach(j => { platformCounts[j.platform] = (platformCounts[j.platform] || 0) + 1; });
+
+            statusBox.innerHTML = `
+                <div class="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span class="font-bold text-white">Extracted ${jobs.length} Live Openings</span>
+                        <span class="text-zinc-500 text-[11px] mono">(${Object.keys(platformCounts).length} platforms indexed)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        ${Object.entries(platformCounts).map(([plat, c]) => `
+                            <span class="text-[10px] mono px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300">${plat}: ${c}</span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            resultsBox.innerHTML = `
+                <div class="space-y-3 mt-3">
+                    ${jobs.map((job, idx) => renderSingleJobCardHTML(job, idx, intelOn)).join('')}
+                </div>
+            `;
+        }
+
+        function renderSingleJobCardHTML(job, idx, intelOn) {
+            const intelDrawerId = `intel-drawer-${job.id}`;
+            const isTracked = trackedJobs.some(t => t.url === job.url);
+
+            return `
+                <div class="bg-[#141419] hover:bg-[#18181f] border border-zinc-800/90 hover:border-zinc-700 rounded-2xl p-4 sm:p-5 transition-all">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        
+                        <div class="space-y-1.5 flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="mono text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">#${idx + 1}</span>
+                                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-700 text-zinc-200 flex items-center gap-1.5">
+                                    <i class="${job.platformIcon} text-[10px] text-zinc-400"></i> ${escapeHtml(job.platform)}
+                                </span>
+                                <span class="text-[11px] mono text-emerald-400 bg-emerald-950/40 border border-emerald-900/60 px-2 py-0.5 rounded-full">
+                                    <i class="fa-regular fa-clock mr-1"></i>${escapeHtml(job.dateListed)}
+                                </span>
+                                <span class="text-[11px] mono text-zinc-300 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded-full">
+                                    ${escapeHtml(job.experienceReq)}
+                                </span>
+                                ${job.salary !== 'Not Disclosed' ? `
+                                    <span class="text-[11px] mono text-amber-300 bg-amber-950/40 border border-amber-900/50 px-2 py-0.5 rounded-full">
+                                        ${escapeHtml(job.salary)}
+                                    </span>
+                                ` : ''}
+                            </div>
+
+                            <h3 class="text-base sm:text-lg font-extrabold text-white leading-snug pt-0.5">
+                                ${escapeHtml(job.jobTitle)}
+                            </h3>
+
+                            <div class="flex items-center gap-2 text-xs text-zinc-400 font-semibold">
+                                <span class="text-zinc-200"><i class="fa-regular fa-building mr-1 text-zinc-500"></i>${escapeHtml(job.companyName)}</span>
+                                <span>•</span>
+                                <span><i class="fa-solid fa-location-dot mr-1 text-zinc-500"></i>${escapeHtml(job.location)}</span>
+                            </div>
+                        </div>
+
+                        <!-- Right Action Buttons -->
+                        <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                            ${intelOn ? `
+                                <button type="button" onclick='runCompanyInsiderIntel(${JSON.stringify(job).replace(/'/g, "&#39;")}, "${intelDrawerId}")'
+                                    class="bubble-pill text-xs font-bold px-3.5 py-2 rounded-full bg-zinc-900 hover:bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-secret text-zinc-300"></i>
+                                    <span>Company Intel</span>
+                                </button>
+                            ` : ''}
+
+                            <button type="button" id="track-btn-${job.id}" onclick='trackJobOpening(${JSON.stringify(job).replace(/'/g, "&#39;")})'
+                                class="bubble-pill text-xs font-semibold px-3 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white flex items-center gap-1">
+                                <i class="fa-${isTracked ? 'solid' : 'regular'} fa-bookmark"></i>
+                                <span>${isTracked ? 'Tracked' : 'Track'}</span>
+                            </button>
+
+                            <a href="${job.url}" target="_blank" rel="noopener noreferrer"
+                                class="bubble-btn-primary text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5">
+                                <span>Apply</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Requirements & Snippet Box -->
+                    <div class="mt-3 pt-3 border-t border-zinc-800/80 text-xs text-zinc-300 leading-relaxed">
+                        <span class="text-[10px] mono uppercase tracking-wider text-zinc-500 block mb-1">Requirements &amp; Listing Excerpt:</span>
+                        ${escapeHtml(job.snippet)}
+                    </div>
+
+                    <!-- Deep Insider Intel Drawer (Past Openings, Removed/Closed Status, HR/Recruiter, Salaries) -->
+                    <div id="${intelDrawerId}" class="hidden mt-4 pt-4 border-t border-zinc-800 space-y-3"></div>
+                </div>
+            `;
+        }
+
+        /* ==========================================
+           DEEP INSIDER INTEL ENGINE (PAST OPENINGS, HR, SALARY, LINK STATUS)
+           ========================================== */
+        async function runCompanyInsiderIntel(job, drawerId) {
+            const drawer = document.getElementById(drawerId);
+            if (!drawer) return;
+
+            if (!drawer.classList.contains('hidden') && drawer.dataset.loaded === 'true') {
+                drawer.classList.add('hidden');
+                return;
+            }
+
+            drawer.classList.remove('hidden');
+            drawer.innerHTML = `
+                <div class="flex items-center gap-2.5 text-xs text-zinc-400 py-2">
+                    <i class="fa-solid fa-circle-notch animate-spin text-white"></i>
+                    <span>Extracting historical openings, closed/expired listings, AmbitionBox/Glassdoor reviews &amp; HR contacts for <b>${escapeHtml(job.companyName)}</b>...</span>
+                </div>
+            `;
+
+            const companyClean = job.companyName.replace(/pvt|ltd|private|limited|inc/gi, '').trim();
+
+            try {
+                // Run 3 Parallel Recon Queries + Live Link Health Check
+                const [historyData, cultureData, hrData, linkStatus] = await Promise.all([
+                    // 1. Past & Historical Job Openings from this Company
+                    fetch("https://google.serper.dev/search", {
+                        method: "POST",
+                        headers: { "X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            q: `"${companyClean}" (site:naukri.com OR site:indeed.com OR site:linkedin.com/jobs OR site:internshala.com OR "hiring" OR "vacancy")`,
+                            gl: "in",
+                            num: 6
+                        })
+                    }).then(r => r.json()).catch(() => ({ organic: [] })),
+
+                    // 2. Insider Salary, Response Time & Reviews (AmbitionBox / Glassdoor / Reddit)
+                    fetch("https://google.serper.dev/search", {
+                        method: "POST",
+                        headers: { "X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            q: `"${companyClean}" (site:ambitionbox.com OR site:glassdoor.co.in OR "salary" OR "interview" OR "reviews")`,
+                            gl: "in",
+                            num: 4
+                        })
+                    }).then(r => r.json()).catch(() => ({ organic: [] })),
+
+                    // 3. Direct HR / Talent Acquisition / Owner Lookup on LinkedIn
+                    fetch("https://google.serper.dev/search", {
+                        method: "POST",
+                        headers: { "X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            q: `site:in.linkedin.com/in/ "${companyClean}" ("HR" OR "Recruiter" OR "Talent" OR "Founder" OR "Hiring")`,
+                            gl: "in",
+                            num: 4
+                        })
+                    }).then(r => r.json()).catch(() => ({ organic: [] })),
+
+                    // 4. Check if listing URL is still live or removed/expired
+                    checkListingLiveStatus(job.url)
+                ]);
+
+                const pastOpenings = (historyData.organic || []).slice(0, 5);
+                const insiderReviews = (cultureData.organic || []).slice(0, 3);
+                const hrContacts = (hrData.organic || []).slice(0, 3);
+
+                drawer.dataset.loaded = 'true';
+                drawer.innerHTML = `
+                    <div class="bg-[#0e0e12] border border-zinc-800 rounded-xl p-4 space-y-4">
+                        
+                        <!-- Top Intel Summary Strip -->
+                        <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-zinc-800/80">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-satellite-dish text-zinc-300"></i> Deep Company Intel: ${escapeHtml(job.companyName)}
+                                </span>
+                            </div>
+                            <span class="text-[11px] mono px-2.5 py-0.5 rounded-full border ${
+                                linkStatus.state === 'ACTIVE'
+                                    ? 'bg-emerald-950/50 border-emerald-800 text-emerald-300'
+                                    : (linkStatus.state === 'REMOVED' ? 'bg-rose-950/50 border-rose-800 text-rose-300' : 'bg-zinc-900 border-zinc-700 text-zinc-300')
+                            }">
+                                Listing Status: ${linkStatus.label}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                            
+                            <!-- Column 1: Past & Other Indexed Openings -->
+                            <div class="bg-[#141419] border border-zinc-800/90 rounded-xl p-3 space-y-2">
+                                <div class="font-bold text-zinc-200 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-clock-rotate-left mr-1.5 text-zinc-400"></i>Past &amp; Other Openings</span>
+                                    <span class="mono text-[10px] text-zinc-400">${pastOpenings.length} found</span>
+                                </div>
+                                ${pastOpenings.length > 0 ? `
+                                    <div class="space-y-2 pt-1">
+                                        ${pastOpenings.map(p => {
+                                            const isClosed = /expired|closed|no longer available|removed/i.test(p.snippet || p.title || '');
+                                            return `
+                                                <a href="${p.link}" target="_blank" class="block p-2 rounded-lg bg-zinc-900/70 hover:bg-zinc-900 border border-zinc-800/80 transition">
+                                                    <div class="font-semibold text-zinc-200 line-clamp-1">${escapeHtml(p.title)}</div>
+                                                    <div class="flex items-center justify-between text-[10px] mono text-zinc-400 mt-1">
+                                                        <span>${escapeHtml(p.date || extractDateFromSnippet(p.snippet || '') || 'Indexed')}</span>
+                                                        <span class="${isClosed ? 'text-rose-400' : 'text-emerald-400'}">${isClosed ? 'Closed/Past' : 'Indexed'}</span>
+                                                    </div>
+                                                </a>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                ` : `<p class="text-zinc-500 text-[11px]">No older job footprints indexed for this company.</p>`}
+                            </div>
+
+                            <!-- Column 2: AmbitionBox / Glassdoor Salary & Interview Intel -->
+                            <div class="bg-[#141419] border border-zinc-800/90 rounded-xl p-3 space-y-2">
+                                <div class="font-bold text-zinc-200 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-building-shield mr-1.5 text-zinc-400"></i>Salary, Culture &amp; Reply Intel</span>
+                                </div>
+                                ${insiderReviews.length > 0 ? `
+                                    <div class="space-y-2 pt-1">
+                                        ${insiderReviews.map(r => `
+                                            <a href="${r.link}" target="_blank" class="block p-2 rounded-lg bg-zinc-900/70 hover:bg-zinc-900 border border-zinc-800/80 transition">
+                                                <div class="font-semibold text-zinc-200 line-clamp-1">${escapeHtml(r.title)}</div>
+                                                <p class="text-[11px] text-zinc-400 line-clamp-2 mt-0.5">${escapeHtml(r.snippet || '')}</p>
+                                            </a>
+                                        `).join('')}
+                                    </div>
+                                ` : `<p class="text-zinc-500 text-[11px]">No public AmbitionBox/Glassdoor complaints found—likely a private/local team.</p>`}
+                            </div>
+
+                            <!-- Column 3: Direct HR / Hiring Decision Makers -->
+                            <div class="bg-[#141419] border border-zinc-800/90 rounded-xl p-3 space-y-2">
+                                <div class="font-bold text-zinc-200 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-user-check mr-1.5 text-zinc-400"></i>Direct HR &amp; Decision Makers</span>
+                                </div>
+                                ${hrContacts.length > 0 ? `
+                                    <div class="space-y-2 pt-1">
+                                        ${hrContacts.map(h => `
+                                            <a href="${h.link}" target="_blank" class="block p-2 rounded-lg bg-zinc-900/70 hover:bg-zinc-900 border border-zinc-800/80 transition">
+                                                <div class="font-semibold text-zinc-200 line-clamp-1">${escapeHtml(h.title.replace(/\s*\|\s*LinkedIn.*$/i, ''))}</div>
+                                                <p class="text-[11px] text-zinc-400 line-clamp-1 mt-0.5">${escapeHtml(h.snippet || 'View LinkedIn Profile')}</p>
+                                            </a>
+                                        `).join('')}
+                                    </div>
+                                ` : `<p class="text-zinc-500 text-[11px]">No public HR profiles matched on LinkedIn.</p>`}
+                                <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(companyClean + ' HR OR Recruiter OR Founder')}" target="_blank"
+                                    class="block text-center text-[11px] font-semibold py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 mt-2">
+                                    Search All Company People on LinkedIn &rarr;
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                drawer.innerHTML = `<div class="text-xs text-rose-400">Failed to load insider intel.</div>`;
+            }
+        }
+
+        /* ==========================================
+           LIVE vs REMOVED LISTING VERIFIER
+           ========================================== */
+        async function checkListingLiveStatus(url) {
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 4500);
+                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, { signal: controller.signal });
+                clearTimeout(timer);
+                if (!res.ok) return { state: 'UNKNOWN', label: 'Protected Portal (Click Apply to Verify)' };
+
+                const data = await res.json();
+                const html = (data.contents || '').toLowerCase();
+                if (!html || html.length < 120) return { state: 'UNKNOWN', label: 'Portal Firewall Active' };
+
+                const closedPatterns = /this job has expired|no longer accepting applications|job is no longer available|position has been filled|listing has been removed|page not found/i;
+                if (closedPatterns.test(html)) {
+                    return { state: 'REMOVED', label: 'REMOVED / EXPIRED' };
+                }
+                return { state: 'ACTIVE', label: 'LIVE & ACCEPTING' };
+            } catch (e) {
+                return { state: 'UNKNOWN', label: 'Indexed Live' };
+            }
+        }
+
+        /* ==========================================
+           OPENING TRACKER & REMOVAL TIMELINE
+           ========================================== */
+        function trackJobOpening(job) {
+            const existingIdx = trackedJobs.findIndex(t => t.url === job.url);
+            if (existingIdx > -1) {
+                trackedJobs.splice(existingIdx, 1);
+            } else {
+                trackedJobs.unshift({
+                    ...job,
+                    savedAt: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+                    liveState: 'LIVE',
+                    removedAt: null
+                });
+            }
+            localStorage.setItem('jobseek_tracked_v1', JSON.stringify(trackedJobs));
+            updateTrackedBadge();
+
+            const btn = document.getElementById(`track-btn-${job.id}`);
+            if (btn) {
+                const nowSaved = existingIdx === -1;
+                btn.innerHTML = `<i class="fa-${nowSaved ? 'solid' : 'regular'} fa-bookmark"></i><span>${nowSaved ? 'Tracked' : 'Track'}</span>`;
+            }
+        }
+
+        function updateTrackedBadge() {
+            document.getElementById('trackedCountBadge').innerText = trackedJobs.length;
+        }
+
+        function toggleDeadLinkMonitor() {
+            const modal = document.getElementById('trackerModal');
+            if (modal.classList.contains('hidden')) {
+                renderTrackedModalList();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function renderTrackedModalList() {
+            const listEl = document.getElementById('trackedJobsList');
+            if (trackedJobs.length === 0) {
+                listEl.innerHTML = `<div class="text-center py-8 text-xs text-zinc-500">No tracked job openings yet. Click "Track" on any job card to monitor when a company removes or closes a role.</div>`;
+                return;
+            }
+
+            listEl.innerHTML = trackedJobs.map((item, i) => `
+                <div class="bg-[#18181f] border border-zinc-800 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-white">${escapeHtml(item.jobTitle)}</span>
+                            <span class="text-[10px] mono px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-zinc-300">${escapeHtml(item.platform)}</span>
+                            <span class="text-[10px] mono px-2 py-0.5 rounded ${
+                                item.liveState === 'REMOVED' ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                            }">
+                                ${item.liveState === 'REMOVED' ? `Removed on ${item.removedAt}` : 'Active'}
+                            </span>
+                        </div>
+                        <div class="text-zinc-400 text-[11px] mt-1">
+                            ${escapeHtml(item.companyName)} • Listed: ${escapeHtml(item.dateListed)} • Tracked Since: ${escapeHtml(item.savedAt)}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <a href="${item.url}" target="_blank" class="px-3 py-1.5 rounded-lg bg-zinc-200 text-zinc-950 font-bold">Open</a>
+                        <button onclick="removeTrackedItem(${i})" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 text-zinc-400 hover:text-rose-400 border border-zinc-800">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeTrackedItem(idx) {
+            trackedJobs.splice(idx, 1);
+            localStorage.setItem('jobseek_tracked_v1', JSON.stringify(trackedJobs));
+            updateTrackedBadge();
+            renderTrackedModalList();
+        }
+
+        async function verifyAllTrackedLinks() {
+            const btn = document.getElementById('recheckBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1"></i> Checking...`;
+
+            for (let i = 0; i < trackedJobs.length; i++) {
+                const status = await checkListingLiveStatus(trackedJobs[i].url);
+                if (status.state === 'REMOVED' && trackedJobs[i].liveState !== 'REMOVED') {
+                    trackedJobs[i].liveState = 'REMOVED';
+                    trackedJobs[i].removedAt = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+            }
+
+            localStorage.setItem('jobseek_tracked_v1', JSON.stringify(trackedJobs));
+            renderTrackedModalList();
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-rotate mr-1"></i> Check If Removed`;
+        }
+
+        /* ==========================================
+           CSV EXPORT
+           ========================================== */
+        function exportJobsCSV() {
+            if (!allExtractedJobs.length) return;
+            const headers = ["Job Title", "Company", "Platform", "Posted Date", "Experience", "Salary", "Location", "Apply URL", "Requirements Snippet"];
+            const rows = allExtractedJobs.map(j => [
+                `"${(j.jobTitle || '').replace(/"/g, '""')}"`,
+                `"${(j.companyName || '').replace(/"/g, '""')}"`,
+                `"${(j.platform || '').replace(/"/g, '""')}"`,
+                `"${(j.dateListed || '').replace(/"/g, '""')}"`,
+                `"${(j.experienceReq || '').replace(/"/g, '""')}"`,
+                `"${(j.salary || '').replace(/"/g, '""')}"`,
+                `"${(j.location || '').replace(/"/g, '""')}"`,
+                `"${(j.url || '').replace(/"/g, '""')}"`,
+                `"${(j.snippet || '').replace(/"/g, '""')}"`
+            ]);
+
+            const csv = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const link = document.createElement('a');
+            link.setAttribute('href', encodeURI(csv));
+            link.setAttribute('download', `JobSeek_Listings_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>
